@@ -60,14 +60,18 @@ impl Wallet {
         Ok(chunk_script)
     }
 
-    fn create_taproot_output(&self) -> anyhow::Result<TaprootSpendInfo> {
+    pub(crate) fn create_taproot_output(&self) -> anyhow::Result<TaprootSpendInfo> {
         let internal_key = self.x_only_public_key();
+        let mut builder = TaprootBuilder::new();
 
-        let mut builder = TaprootBuilder::new().add_leaf(0, self.spend_script())?;
-
-        for chunk in self.create_chunks()? {
+        let chunks = self.create_chunks()?;
+        let depth = (chunks.len() as u32).ilog2() as u8;
+        println!("depth: {}", depth);
+        for chunk in chunks {
             let chunk_script = self.create_chunk_tapleaf(chunk)?;
-            builder = builder.add_leaf(0, chunk_script)?;
+            println!("chunk_script: {:?}", chunk_script.to_asm_string());
+            println!("depth: {}", depth);
+            builder = builder.add_leaf(depth, chunk_script)?;
         }
 
         let taproot_info = match builder.finalize(SECP256K1, internal_key) {
@@ -77,13 +81,5 @@ impl Wallet {
             }
         };
         Ok(taproot_info)
-    }
-
-    /// Spend script for the tapleaf
-    fn spend_script(&self) -> ScriptBuf {
-        Builder::new()
-            .push_x_only_key(&self.x_only_public_key())
-            .push_opcode(OP_CHECKSIG)
-            .into_script()
     }
 }

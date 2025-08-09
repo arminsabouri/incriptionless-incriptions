@@ -43,6 +43,7 @@ impl App {
     }
 
     pub fn run(&self) -> anyhow::Result<()> {
+        let taproot_info = self.wallet.create_taproot_output()?;
         Ok(())
     }
 }
