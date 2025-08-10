@@ -1,8 +1,10 @@
-# Incriptionless-Incription (insert cooler name here)
+# FilterThis
+
+Code is super WIP. Don't even try to run it.
 
 ## Overview
 
-We present a mechanism for committing to large data objects (e.g., images) using Bitcoin Taproot outputs without embedding the data directly on-chain. The commitment is constructed using the Taproot script tree, where each Tapleaf contains a chunk of the data. A non-interactive, probabilistically sound attestation allows third parties to verify with high confidence that a given object was indeed committed to in the Taproot tree.
+The following is a mechanism for committing to large data objects (e.g., images) using Bitcoin Taproot outputs without embedding the data directly on-chain. The commitment is constructed using the Taproot script tree, where each Tapleaf contains a chunk of the data. A non-interactive, probabilistically sound attestation allows third parties to verify with high confidence that a given object was indeed committed to in the Taproot tree.
 
 This enables decentralized publication and verification of large assets (e.g., inscriptions) using already available taproot tools, with minimal on-chain footprint and no reliance on consensus enforcement. Additionally, the commitment is privacy preserving. Only the owner and the buyer know what the data is committed to.
 
@@ -108,13 +110,24 @@ The soundness of this scheme depends on:
 
 If a malicious committer includes invalid or incomplete data in some leaves, but correctly responds to `k` Fiat-Shamir challenges, the probability they escape detection is:
 
-```
-Pr[fake passes] = (m / n)^k
+```math
+Pr["Fake Passes"] = (m / n)^k
 ```
 
 Where `m` is the number of valid leaves, and `n` is total leaves.
 
 This is negligible if `k` is large and `m << n`.
+
+### Example
+
+Chunk size = 64 bytes.
+
+* D = 2^15 = 32768 bytes
+* n = 512 chunks
+* k = 32 challenges
+* m = 50 **valid** chunks. i.e. the minter only put valid data in 50 chunks the rest are bogus or non-existent.
+
+The probability of getting away with it is `(50/512)^32 ≈ 2.3 × 10^-47`, which is essentially zero.
 
 ## Advantages
 
