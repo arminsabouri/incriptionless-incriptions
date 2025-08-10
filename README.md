@@ -28,7 +28,7 @@ Let `L` be the chunk size (e.g., 64 bytes). The total number of chunks is `n = c
 Each chunk `Dᵢ` will be encoded into a Tapleaf script:
 
 ```
-scriptᵢ = OP_PUSHBYTES_{|D_L|} Dᵢ
+scriptᵢ = OP_PUSHBYTES_{D_L} Dᵢ
 ```
 
 These scripts are compiled into Tapleaves and inserted into the Taproot script tree.
@@ -127,6 +127,14 @@ This is negligible if `k` is large and `m << n`.
 * m = 50 **valid** chunks. i.e. the minter only put valid data in 50 chunks the rest are bogus or non-existent.
 
 The probability of getting away with it is `(50/512)^32 ≈ 4.6816764e-33`, which is essentially zero.
+
+
+### Needle in the haystack problem
+
+If the minter fakes a single tapleaf their probability of getting away with it is high. Chunks are local. A corruption in one chunk does not affect others. We need to employ some sort of Reed-Solomon encoding to ensure that each chunk is dependent on many parts of the file.
+
+Alternatively you can have the verifier do a determinitic re-construction of the merkle root in `O(n)` steps. Compared to the checking a transcript in `O(kLog(n))` steps.
+On commodity hardware recreating the merkle root is probably fine. So maybe we scrap the transcript and keep this lean?
 
 ## Advantages
 
