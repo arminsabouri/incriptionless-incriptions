@@ -28,7 +28,7 @@ Let `L` be the chunk size (e.g., 64 bytes). The total number of chunks is `n = c
 Each chunk `Dᵢ` will be encoded into a Tapleaf script:
 
 ```
-scriptᵢ = OP_PUSHBYTES_{|Dᵢ|} Dᵢ
+scriptᵢ = OP_PUSHBYTES_{|D_L|} Dᵢ
 ```
 
 These scripts are compiled into Tapleaves and inserted into the Taproot script tree.
@@ -42,7 +42,7 @@ Note: we have to be careful here that no chunk is "truthy" otherwise if someone 
 The Taproot output `P` is created:
 
 ```
-P = Taproot_Tweak(internal_key, Merkle_root({script_0..n}))
+P = TapTweak(internal_key, Merkle_root({script_0..n}))
 ```
 
 ### Non-Interactive Attestation (Fiat-Shamir Transcript)
@@ -75,7 +75,7 @@ Each `responseᵢ` includes:
 
 * `index`: the Tapleaf index (0-based)
 * `chunk`: the raw bytes of `Dᵢ`
-* `proof`: the Merkle proof from the leaf to the Taproot root
+* `proof`: the Merkle inclusion proof for the chunk
 
 The transcript consists of all `(queryᵢ, responseᵢ)` pairs.
 
@@ -120,14 +120,13 @@ This is negligible if `k` is large and `m << n`.
 
 ### Example
 
-Chunk size = 64 bytes.
-
+* L = 64 bytes
 * D = 2^15 = 32768 bytes
 * n = 512 chunks
 * k = 32 challenges
 * m = 50 **valid** chunks. i.e. the minter only put valid data in 50 chunks the rest are bogus or non-existent.
 
-The probability of getting away with it is `(50/512)^32 ≈ 2.3 × 10^-47`, which is essentially zero.
+The probability of getting away with it is `(50/512)^32 ≈ 4.6816764e-33`, which is essentially zero.
 
 ## Advantages
 
